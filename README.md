@@ -1,2 +1,1 @@
-# release-hub-clean
-release hub dashboard
+Initial set-up for release dashboard

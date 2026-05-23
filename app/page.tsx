@@ -8,14 +8,15 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/analyze")
       .then(res => res.json())
-      .then(setData);
+      .then(setData)
+      .catch(console.error);
   }, []);
 
-  if (!data) return <p>Loading...</p>;
+  if (!data) return <p>Loading dashboard...</p>;
 
   return (
     <main style={{ padding: 40 }}>
-      <h1>🛏️ Mattress Release Dashboard</h1>
+      <h1>Release Dashboard ✅</h1>
 
       <p>Total Tickets: {data.total}</p>
       <p>Closed Tickets: {data.closed}</p>

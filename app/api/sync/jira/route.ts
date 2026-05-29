@@ -4,34 +4,49 @@ export const runtime = "nodejs";
 import clientPromise from "../../../../lib/mongodb";
 
 export async function GET() {
-  try {
-    const client = await clientPromise;
-    const db = client.db("releasehub");
+  try {
+    const client = await clientPromise;
+    const db = client.db("releasehub");
 
-    // Simulated Jira data (safe fallback)
-    const jiraIssues = [
-      { key: "MATTRESS-101", status: "Done" },
-      { key: "MATTRESS-102", status: "In Progress" },
-      { key: "MATTRESS-103", status: "Blocked" }
-    ];
+    // ✅ Fetch REAL Jira data
+    const res = await fetch(
+      "https://pravallikagumudavelli.atlassian.net/rest/api/3/search/jql?jql=project=RH&maxResults=50",
+      {
+        headers: {
+          Authorization: `Basic ${process.env.JIRA_TOKEN}`, // ✅ from .env
+          Accept: "application/json",
+        },
+      }
+    );
 
-    // Clear old data
-    await db.collection("jira").deleteMany({});
+    const data = await res.json();
+    
+    // ✅ Convert Jira response → your format
+    const jiraIssues = data.issues.map((issue: any) => ({
+      key: issue.key,
+      status: issue.fields.status.name,
+    }));
 
-    // Insert fresh Jira data
-    await db.collection("jira").insertMany(jiraIssues);
+    // ✅ Clear old data
+    await db.collection("jira").deleteMany({});
 
-    return Response.json({
-      message: "✅ Jira data synced",
-      count: jiraIssues.length
-    });
+    // ✅ Insert real Jira data
+    await db.collection("jira").insertMany(jiraIssues);
 
-  } catch (error) {
-    return Response.json(
-      {
-        error: "❌ Failed to sync Jira data"
-      },
-      { status: 500 }
-    );
-  }
+    return Response.json({
+      message: "✅ Jira data synced (REAL DATA)",
+      count: jiraIssues.length,
+    });
+
+  } catch (error) {
+    console.error("Jira Sync Error:", error);
+    
+    return Response.json(
+      {
+        error: "❌ Failed to sync Jira data"
+      },
+      { status: 500 }
+    );
+  }
 }
+``

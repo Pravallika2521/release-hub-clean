@@ -9,7 +9,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetch("/api/analyze")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setData);
   }, []);
 
@@ -33,18 +33,17 @@ export default function Dashboard() {
 
   return (
     <div style={styles.container}>
-
       <h1>🚀 Smart Release Dashboard</h1>
 
-      {/* ✅ KPI CARDS */}
+      {/* ✅ Metrics */}
       <div style={styles.metrics}>
-        <Card label="Total Tickets" value={data.total} />
+        <Card label="Total" value={data.total} />
         <Card label="Closed %" value={percentClosed + "%"} />
         <Card label="Open %" value={percentOpen + "%"} />
         <Card label="Blocked %" value={percentBlocked + "%"} />
       </div>
 
-      {/* ✅ GO/NO‑GO STATUS */}
+      {/* ✅ Status */}
       <div style={styles.status}>
         <h2 style={{ color: data.status.includes("NO") ? "red" : "green" }}>
           {data.status}
@@ -52,8 +51,29 @@ export default function Dashboard() {
         <p>{data.reason}</p>
       </div>
 
-      {/* ✅ CHART */}
+      {/* ✅ Chart */}
       <div style={styles.chart}>
         <Pie data={pieData} />
       </div>
 
+      {/* ✅ Table */}
+      <table style={styles.table}>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Total</td><td>{data.total}</td></tr>
+          <tr><td>Closed</td><td>{data.closed}</td></tr>
+          <tr><td>Open</td><td>{data.open}</td></tr>
+          <tr><td>Blocked</td><td>{data.blocked}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function Card({ label, value }: any) {
+  return (

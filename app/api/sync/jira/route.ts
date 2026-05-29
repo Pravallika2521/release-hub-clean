@@ -13,7 +13,7 @@ export async function GET() {
       "https://pravallikagumudavelli.atlassian.net/rest/api/3/search/jql?jql=project=RH&maxResults=50",
       {
         headers: {
-          Authorization: `Basic ${process.env.JIRA_TOKEN}`, // ✅ from .env
+          Authorization: `Basic ${process.env.JIRA_API_TOKEN}`, // ✅ from .env
           Accept: "application/json",
         },
       }

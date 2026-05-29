@@ -1,103 +1,79 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-} from "chart.js";
+import "chart.js/auto";
 import { Pie, Bar } from "react-chartjs-2";
-
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
-  const [tickets, setTickets] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("/api/analyze")
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(setData);
-
-    fetch("/api/sync/jira")
-      .then((res) => res.json())
-      .then(() => {
-        fetch("/api/analyze")
-          .then((res) => res.json())
-          .then(setData);
-      });
   }, []);
 
-  if (!data) return <p>Loading...</p>;
+  if (!data) return <h2>Loading...</h2>;
 
-  // ✅ Pie Chart
   const pieData = {
     labels: ["Closed", "Open", "Blocked"],
     datasets: [
       {
         data: [data.closed, data.open, data.blocked],
-        backgroundColor: ["green", "orange", "red"],
+        backgroundColor: ["#22c55e", "#f59e0b", "#ef4444"],
       },
     ],
   };
 
-  // ✅ Bar Chart
   const barData = {
     labels: ["Total", "Closed", "Open", "Blocked"],
     datasets: [
       {
         label: "Tickets",
         data: [data.total, data.closed, data.open, data.blocked],
-        backgroundColor: "blue",
+        backgroundColor: "#3b82f6",
       },
     ],
   };
 
   return (
-    <main style={{ padding: 40 }}>
-      <h1>🚀 Smart Release Intelligence Hub</h1>
+    <main style={styles.container}>
+      <h1 style={styles.title}>🚀 Smart Release Intelligence Hub</h1>
 
-      {/* ✅ Metrics */}
-      <div style={{ display: "flex", gap: 20 }}>
-        <div>Total: {data.total}</div>
-        <div>Closed: {data.closed}</div>
-        <div>Open: {data.open}</div>
-        <div>Blocked: {data.blocked}</div>
+      {/* ✅ Cards */}
+      <div style={styles.cards}>
+        <Card label="Total" value={data.total} color="#3b82f6" />
+        <Card label="Closed" value={data.closed} color="#22c55e" />
+        <Card label="Open" value={data.open} color="#f59e0b" />
+        <Card label="Blocked" value={data.blocked} color="#ef4444" />
       </div>
 
       {/* ✅ Status */}
-      <h2 style={{ color: data.status.includes("NO") ? "red" : "green" }}>
-        {data.status}
-      </h2>
-      <p>{data.reason}</p>
+      <div style={styles.statusBox}>
+        <h2 style={{
+          color: data.status.includes("NO") ? "#ef4444" : "#22c55e"
+        }}>
+          {data.status}
+        </h2>
+        <p>{data.reason}</p>
+      </div>
 
       {/* ✅ Charts */}
-      <div style={{ display: "flex", gap: 50, marginTop: 40 }}>
-        <div style={{ width: 300 }}>
-          <h3>Pie Chart</h3>
+      <div style={styles.charts}>
+        <div style={styles.chartBox}>
+          <h3>Issue Distribution</h3>
           <Pie data={pieData} />
         </div>
 
-        <div style={{ width: 400 }}>
-          <h3>Bar Chart</h3>
+        <div style={styles.chartBox}>
+          <h3>Ticket Overview</h3>
           <Bar data={barData} />
         </div>
       </div>
 
       {/* ✅ Table */}
-      <h3 style={{ marginTop: 40 }}>Ticket Table</h3>
-      <table border={1} cellPadding={10}>
+      <h3 style={{ marginTop: 40 }}>Ticket Data</h3>
+      <table style={styles.table}>
         <thead>
           <tr>
             <th>Key</th>
@@ -106,10 +82,10 @@ export default function Dashboard() {
         </thead>
         <tbody>
           {[
-            { key: "RH-1", status: "Done" },
-            { key: "RH-2", status: "Done" },
-            { key: "RH-3", status: "In Progress" },
-            { key: "RH-4", status: "Blocked" },
+            { key: "RH-30", status: "In Review" },
+            { key: "RH-28", status: "Done" },
+            { key: "RH-25", status: "Blocked" },
+            { key: "RH-21", status: "In Progress" }
           ].map((t, i) => (
             <tr key={i}>
               <td>{t.key}</td>
@@ -118,28 +94,66 @@ export default function Dashboard() {
           ))}
         </tbody>
       </table>
-
-      {/* ✅ HIGH LEVEL FLOW (ARCHITECTURE VIEW) */}
-      <h3 style={{ marginTop: 50 }}>Architecture Flow</h3>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <div style={box}>Jira Data</div>
-        ➡️
-        <div style={box}>APIs (Next.js)</div>
-        ➡️
-        <div style={box}>MongoDB</div>
-        ➡️
-        <div style={box}>Analysis Logic</div>
-        ➡️
-        <div style={box}>Dashboard</div>
-      </div>
     </main>
   );
 }
 
-const box = {
-  padding: 20,
-  border: "1px solid black",
-  borderRadius: 8,
-  background: "#f5f5f5",
+/* ✅ Card Component */
+function Card({ label, value, color }: any) {
+  return (
+    <div style={{ ...styles.card, borderTop: `5px solid ${color}` }}>
+      <h3>{label}</h3>
+      <p style={{ fontSize: 24, fontWeight: "bold" }}>{value}</p>
+    </div>
+  );
+}
+
+/* ✅ Styles */
+const styles: any = {
+  container: {
+    padding: 30,
+    fontFamily: "Arial",
+    background: "linear-gradient(to right, #eef2ff, #f8fafc)",
+    minHeight: "100vh",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: 30,
+  },
+  cards: {
+    display: "flex",
+    gap: 20,
+    justifyContent: "center",
+  },
+  card: {
+    padding: 20,
+    borderRadius: 10,
+    width: 120,
+    background: "white",
+    textAlign: "center",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+  },
+  statusBox: {
+    textAlign: "center",
+    marginTop: 30,
+  },
+  charts: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 50,
+    marginTop: 40,
+  },
+  chartBox: {
+    width: 350,
+    background: "white",
+    padding: 20,
+    borderRadius: 10,
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+  },
+  table: {
+    width: "50%",
+    margin: "20px auto",
+    borderCollapse: "collapse",
+    background: "white",
+  },
 };

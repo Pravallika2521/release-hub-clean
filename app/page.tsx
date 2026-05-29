@@ -13,7 +13,7 @@ export default function Dashboard() {
       .then(setData);
   }, []);
 
-  if (!data) return <h2>Loading...</h2>;
+  if (!data) return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 
   const total = data.total || 1;
 
@@ -25,55 +25,3 @@ export default function Dashboard() {
     labels: ["Closed", "Open", "Blocked"],
     datasets: [
       {
-        data: [percentClosed, percentOpen, percentBlocked],
-        backgroundColor: ["green", "orange", "red"],
-      },
-    ],
-  };
-
-  return (
-    <div style={styles.container}>
-      <h1>🚀 Smart Release Dashboard</h1>
-
-      {/* ✅ Metrics */}
-      <div style={styles.metrics}>
-        <Card label="Total" value={data.total} />
-        <Card label="Closed %" value={percentClosed + "%"} />
-        <Card label="Open %" value={percentOpen + "%"} />
-        <Card label="Blocked %" value={percentBlocked + "%"} />
-      </div>
-
-      {/* ✅ Status */}
-      <div style={styles.status}>
-        <h2 style={{ color: data.status.includes("NO") ? "red" : "green" }}>
-          {data.status}
-        </h2>
-        <p>{data.reason}</p>
-      </div>
-
-      {/* ✅ Chart */}
-      <div style={styles.chart}>
-        <Pie data={pieData} />
-      </div>
-
-      {/* ✅ Table */}
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th>Metric</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Total</td><td>{data.total}</td></tr>
-          <tr><td>Closed</td><td>{data.closed}</td></tr>
-          <tr><td>Open</td><td>{data.open}</td></tr>
-          <tr><td>Blocked</td><td>{data.blocked}</td></tr>
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function Card({ label, value }: any) {
-  return (
